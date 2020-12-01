@@ -10,7 +10,7 @@ import tensorflow as tf
 def load_dataset(
     data_details: Dict,
     batch_size: int,
-    file_ffps: List[str] = None,
+    file_ffps: Union[List[str], np.ndarray] = None,
     data_dirs: Union[Path, List[Path]] = None,
     file_filter: str = "*.tfrecord",
     recursive: bool = False,
