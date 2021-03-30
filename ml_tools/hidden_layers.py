@@ -1,3 +1,5 @@
+from typing import Dict
+
 from tensorflow import keras
 from tensorflow.keras import layers
 
@@ -53,11 +55,35 @@ def selu_dropout(input: layers.Layer, n_units: int, dropout: float = 0.2):
     return x
 
 
-def selu_mc_dropout(input: layers.Layer, n_units: int, dropout: float = 0.2):
+def selu_mc_dropout(input: layers.Layer, n_units: int, dropout: float = 0.05):
     x = layers.Dense(
         units=n_units, activation="selu", kernel_initializer="lecun_normal"
     )(input)
     if dropout is not None:
         x = MCAlphaDropout(dropout)(x)
+
+    return x
+
+def cnn1_mc_dropout_pool(
+    input: layers.Layer,
+    filters: int,
+    kernel_size: int,
+    cnn_config: Dict,
+    dropout: float = 0.1,
+    pool_size: int = 2,
+):
+    x = layers.Conv1D(filters, kernel_size, **cnn_config)(input)
+    if dropout is not None:
+        x = MCSpatialDropout1D(rate=dropout)(x)
+    if pool_size is not None:
+        x = keras.layers.MaxPooling1D(pool_size)(x)
+
+    return x
+
+
+def bi_lstm(input: layers.Layer, n_units: int, **lstm_config):
+    x = keras.layers.Bidirectional(
+        layer=keras.layers.LSTM(units=n_units, **lstm_config)
+    )(input)
 
     return x
