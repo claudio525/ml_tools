@@ -8,4 +8,5 @@ def get_min_max_scaling_fn(target_min: float, target_max: float):
         X_std = (X - X_min) / (X_max - X_min)
         return X_std * (target_max - target_min) + target_min
 
-    return tf.function(min_max_scaling)
+    return min_max_scaling
+    # return tf.function(min_max_scaling)

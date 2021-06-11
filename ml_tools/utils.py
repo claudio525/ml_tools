@@ -28,9 +28,9 @@ class GenericObjJSONEncoder(json.JSONEncoder):
             return str(obj)
 
 
-def create_run_id() -> str:
+def create_run_id(include_seconds: bool = False) -> str:
     """Creates a run ID based on the month, day & time"""
-    id = datetime.datetime.now().strftime("%m%d_%H%M")
+    id = datetime.datetime.now().strftime(f"%m%d_%H%M{'%S' if include_seconds else ''}")
     return id
 
 
@@ -43,7 +43,7 @@ def write_to_json(data: Dict, ffp: Path, clobber: bool = False):
         json.dump(data, f, cls=GenericObjJSONEncoder, indent=4)
 
 
-def write_to_txt(data: Sequence[str], ffp: Path, clobber: bool = False):
+def write_to_txt(data: Sequence[Any], ffp: Path, clobber: bool = False):
     """Writes each entry in the list on a newline in a text file"""
     if ffp.is_dir() or (not clobber and ffp.exists()):
         raise FileExistsError(f"File {ffp} already exists, failed to save the data!")
@@ -57,6 +57,12 @@ def write_np_array(array: np.ndarray, ffp: Path, clobber: bool = False):
         raise FileExistsError(f"File {ffp} already exists, failed to save the data!")
 
     np.save(str(ffp), array)
+
+
+def load_txt(ffp: Union[Path, str]):
+    """Loads a text file that has one entry per line"""
+    with open(ffp, "r") as f:
+        return [line.strip() for line in f.readlines()]
 
 
 def load_json(ffp: Union[Path, str]):
@@ -136,3 +142,4 @@ def _save(
 
 def get_hidden_layer_fn(name: str):
     return HIDDEN_LAYER_MAPPING[name]
+

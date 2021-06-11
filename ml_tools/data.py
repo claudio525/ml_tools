@@ -177,21 +177,6 @@ def load_tfrecord_df(record_ffp: str, data_details: Dict, batch_size: int = 10_0
     dataframe:
         Data from the specified .tfrecord file
     """
-    # ds = tf.data.TFRecordDataset(filenames=[record_ffp])
-    #
-    # def _parse_fn(example_proto):
-    #     parsed = tf.io.parse_example(example_proto, data_details)
-    #     return parsed
-    #
-    # # Slight hack, just want to parse the whole record in one go,
-    # # not sure how to do this without batching...
-    # ds = ds.batch(batch_size).map(
-    #     _parse_fn, num_parallel_calls=tf.data.experimental.AUTOTUNE
-    # )
-    #
-    # dfs = [pd.DataFrame.from_dict(cur_data) for cur_data in ds.as_numpy_iterator()]
-    # df = pd.concat(dfs)
-
     data = load_tfrecord(record_ffp, data_details, batch_size=batch_size)
     df = pd.DataFrame.from_dict(data)
 
