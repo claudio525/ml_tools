@@ -1,5 +1,6 @@
 import json
 import datetime
+import pickle
 from pathlib import Path
 from typing import Dict, Any, Union, Sequence
 
@@ -35,13 +36,20 @@ def create_run_id(include_seconds: bool = False) -> str:
 
 
 def write_to_json(data: Dict, ffp: Path, clobber: bool = False):
-    """Writes the data to the specified file path"""
+    """Writes the data to the specified file path in the json format"""
     if ffp.is_dir() or (not clobber and ffp.exists()):
         raise FileExistsError(f"File {ffp} already exists, failed to save the data!")
 
     with open(ffp, "w") as f:
         json.dump(data, f, cls=GenericObjJSONEncoder, indent=4)
 
+def write_to_yaml(data: Dict, ffp: Path, clobber: bool = False):
+    """Writes the data to the specified file path in the yaml format"""
+    if ffp.is_dir() or (not clobber and ffp.exists()):
+        raise FileExistsError(f"File {ffp} already exists, failed to save the data!")
+
+    with open(ffp, "w") as f:
+        yaml.safe_dump(data, f)
 
 def write_to_txt(data: Sequence[Any], ffp: Path, clobber: bool = False):
     """Writes each entry in the list on a newline in a text file"""
@@ -58,6 +66,19 @@ def write_np_array(array: np.ndarray, ffp: Path, clobber: bool = False):
 
     np.save(str(ffp), array)
 
+def write_pickle(obj: Any, ffp: Path, clobber: bool = False):
+    """Saves the object as a pickle file"""
+    if ffp.is_dir() or (not clobber and ffp.exists()):
+        raise FileExistsError(f"File {ffp} already exists, failed to save the data!")
+
+    with open(ffp, "wb") as f:
+        pickle.dump(obj, f)
+
+
+def load_picke(ffp: Union[Path, str]):
+    """Loads the pickle file"""
+    with open(ffp, "rb") as f:
+        return pickle.load(f)
 
 def load_txt(ffp: Union[Path, str]):
     """Loads a text file that has one entry per line"""
