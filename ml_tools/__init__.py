@@ -7,3 +7,4 @@ from . import utils
 from . import tf_pre
 from . import array_utils
 from . import eval
+from . import plotting

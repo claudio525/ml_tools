@@ -20,6 +20,8 @@ HIDDEN_LAYER_MAPPING = {
     "selu_mc_dropout": hidden_layers.selu_mc_dropout,
 }
 
+def get_hidden_layer_fn(name: str):
+    return HIDDEN_LAYER_MAPPING[name]
 
 class GenericObjJSONEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
@@ -161,6 +163,5 @@ def _save(
         wandb.save(str(out_ffp))
 
 
-def get_hidden_layer_fn(name: str):
-    return HIDDEN_LAYER_MAPPING[name]
+
 
