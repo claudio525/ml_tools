@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union
 
 from tensorflow import keras
 from tensorflow.keras import layers
@@ -45,9 +45,10 @@ def relu_dropout(input: layers.Layer, n_units: int, dropout: float = 0.2):
     return x
 
 
-def selu_dropout(input: layers.Layer, n_units: int, dropout: float = 0.2):
+def selu(input: layers.Layer, n_units: int, dropout: Union[float, None] = 0.2, l2: Union[float, None] = None):
     x = layers.Dense(
-        units=n_units, activation="selu", kernel_initializer="lecun_normal"
+        units=n_units, activation="selu", kernel_initializer="lecun_normal",
+        kernel_regularizer=keras.regularizers.l2(l2) if l2 is not None else None
     )(input)
     if dropout is not None:
         x = layers.AlphaDropout(dropout)(x)

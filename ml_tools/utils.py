@@ -15,7 +15,7 @@ from . import hidden_layers
 HIDDEN_LAYER_MAPPING = {
     "relu_bn": hidden_layers.relu_bn,
     "relu_dropout": hidden_layers.relu_dropout,
-    "selu_dropout": hidden_layers.selu_dropout,
+    "selu_dropout": hidden_layers.selu,
     "elu_mc_dropout": hidden_layers.elu_mc_dropout,
     "selu_mc_dropout": hidden_layers.selu_mc_dropout,
 }
