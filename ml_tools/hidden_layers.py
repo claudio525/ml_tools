@@ -37,7 +37,7 @@ def relu_bn(input: layers.Layer, n_units: int, l2: float = None):
     return x
 
 
-def relu_dropout(input: layers.Layer, n_units: int, dropout: float = 0.2):
+def relu_dropout(input: layers.Layer, n_units: int, dropout: float = None):
     x = layers.Dense(units=n_units, activation="relu")(input)
     if dropout is not None:
         x = layers.Dropout(rate=dropout)(x)
@@ -45,7 +45,7 @@ def relu_dropout(input: layers.Layer, n_units: int, dropout: float = 0.2):
     return x
 
 
-def selu(input: layers.Layer, n_units: int, dropout: Union[float, None] = 0.2, l2: Union[float, None] = None):
+def selu(input: layers.Layer, n_units: int, dropout: Union[float, None] = None, l2: Union[float, None] = None):
     x = layers.Dense(
         units=n_units, activation="selu", kernel_initializer="lecun_normal",
         kernel_regularizer=keras.regularizers.l2(l2) if l2 is not None else None
@@ -56,7 +56,7 @@ def selu(input: layers.Layer, n_units: int, dropout: Union[float, None] = 0.2, l
     return x
 
 
-def selu_mc_dropout(input: layers.Layer, n_units: int, dropout: float = 0.05):
+def selu_mc_dropout(input: layers.Layer, n_units: int, dropout: float = None):
     x = layers.Dense(
         units=n_units, activation="selu", kernel_initializer="lecun_normal"
     )(input)
@@ -70,7 +70,7 @@ def cnn1_mc_dropout_pool(
     filters: int,
     kernel_size: int,
     cnn_config: Dict,
-    dropout: float = 0.1,
+    dropout: float = None,
     pool_size: int = 2,
 ):
     x = layers.Conv1D(filters, kernel_size, **cnn_config)(input)
