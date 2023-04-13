@@ -5,8 +5,6 @@ from pathlib import Path
 from typing import Dict, Any, Union, Sequence
 import math
 
-
-import tensorflow as tf
 import pandas as pd
 import numpy as np
 import yaml
@@ -138,6 +136,9 @@ def _save(
     wandb_save: bool,
 ):
     """Saves the data in the specified output dir"""
+    import tensorflow as tf
+    import wandb
+
     if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
         out_ffp = output_dir / f"{key}.csv"
         data.to_csv(out_ffp)
@@ -164,5 +165,13 @@ def _save(
         raise NotImplementedError()
 
     if wandb_save:
-        import wandb
         wandb.save(str(out_ffp))
+
+def norm_ts(ts_values: np.ndarray):
+    """Normalises the timeseries to have zero mean and unit variance"""
+    return (ts_values - np.mean(ts_values, axis=1)[:, np.newaxis]) / np.std(
+        ts_values, axis=1
+    )[:, np.newaxis]
+
+
+
