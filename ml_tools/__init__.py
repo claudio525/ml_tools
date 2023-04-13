@@ -1,10 +1,6 @@
 from . import utils
-from . import data
-from . import hidden_layers
-from . import layers
-from .RandomParamGenerator import RandomParamGenerator
+from .tensorflow import layers, tf_utils, data, hidden_layers
 from . import utils
-from . import tf_pre
 from . import array_utils
 from . import eval
 from . import plotting

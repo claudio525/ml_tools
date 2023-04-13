@@ -3,25 +3,14 @@ import datetime
 import pickle
 from pathlib import Path
 from typing import Dict, Any, Union, Sequence
+import math
+
 
 import tensorflow as tf
 import pandas as pd
 import numpy as np
 import yaml
-import wandb
 
-from . import hidden_layers
-
-HIDDEN_LAYER_MAPPING = {
-    "relu_bn": hidden_layers.relu_bn,
-    "relu_dropout": hidden_layers.relu_dropout,
-    "selu_dropout": hidden_layers.selu,
-    "elu_mc_dropout": hidden_layers.elu_mc_dropout,
-    "selu_mc_dropout": hidden_layers.selu_mc_dropout,
-}
-
-def get_hidden_layer_fn(name: str):
-    return HIDDEN_LAYER_MAPPING[name]
 
 class GenericObjJSONEncoder(json.JSONEncoder):
     def default(self, obj: Any) -> Any:
@@ -29,6 +18,15 @@ class GenericObjJSONEncoder(json.JSONEncoder):
             return json.JSONEncoder.default(self, obj)
         except TypeError as ex:
             return str(obj)
+
+
+def round_sig(x, sig=2):
+    """
+    Rounds the given number to the specified
+    number of significant digits
+    Source: https://stackoverflow.com/questions/3410976/how-to-round-a-number-to-significant-figures-in-python
+    """
+    return round(x, sig - int(math.floor(math.log10(abs(x)))) - 1)
 
 
 def create_run_id(include_seconds: bool = False) -> str:
@@ -45,6 +43,7 @@ def write_to_json(data: Dict, ffp: Path, clobber: bool = False):
     with open(ffp, "w") as f:
         json.dump(data, f, cls=GenericObjJSONEncoder, indent=4)
 
+
 def write_to_yaml(data: Dict, ffp: Path, clobber: bool = False):
     """Writes the data to the specified file path in the yaml format"""
     if ffp.is_dir() or (not clobber and ffp.exists()):
@@ -52,6 +51,7 @@ def write_to_yaml(data: Dict, ffp: Path, clobber: bool = False):
 
     with open(ffp, "w") as f:
         yaml.safe_dump(data, f)
+
 
 def write_to_txt(data: Sequence[Any], ffp: Path, clobber: bool = False):
     """Writes each entry in the list on a newline in a text file"""
@@ -61,12 +61,14 @@ def write_to_txt(data: Sequence[Any], ffp: Path, clobber: bool = False):
     with open(ffp, "w") as f:
         f.writelines([f"{cur_line}\n" for cur_line in data])
 
+
 def write_np_array(array: np.ndarray, ffp: Path, clobber: bool = False):
     """Saves the array in the numpy binary format .npy"""
     if ffp.is_dir() or (not clobber and ffp.exists()):
         raise FileExistsError(f"File {ffp} already exists, failed to save the data!")
 
     np.save(str(ffp), array)
+
 
 def write_pickle(obj: Any, ffp: Path, clobber: bool = False):
     """Saves the object as a pickle file"""
@@ -81,6 +83,7 @@ def load_picke(ffp: Union[Path, str]):
     """Loads the pickle file"""
     with open(ffp, "rb") as f:
         return pickle.load(f)
+
 
 def load_txt(ffp: Union[Path, str]):
     """Loads a text file that has one entry per line"""
@@ -134,6 +137,7 @@ def _save(
     data: Union[pd.DataFrame, pd.Series, dict],
     wandb_save: bool,
 ):
+    """Saves the data in the specified output dir"""
     if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
         out_ffp = output_dir / f"{key}.csv"
         data.to_csv(out_ffp)
@@ -160,8 +164,5 @@ def _save(
         raise NotImplementedError()
 
     if wandb_save:
+        import wandb
         wandb.save(str(out_ffp))
-
-
-
-
