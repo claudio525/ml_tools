@@ -58,8 +58,6 @@ def plot_clusters(
         if cluster_ix < unique_clusters.size - 1:
             ax.xaxis.set_major_locator(ticker.NullLocator())
 
-    # plt.xlabel(f"Frequency")
-
     plt.tight_layout()
     fig.subplots_adjust(hspace=0.0)
 

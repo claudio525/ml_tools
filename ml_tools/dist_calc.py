@@ -2,7 +2,7 @@ from typing import Dict
 
 import numpy as np
 import pandas as pd
-from tslearn import metrics
+
 
 
 def compute_dtw_dist_matrix(
@@ -31,6 +31,8 @@ def compute_dtw_dist_matrix(
         Distance matrix
         Shape: [N, N]
     """
+    from tslearn import metrics
+
     dtw_params = dict() if dtw_params is None else dtw_params
 
     N = series_df.shape[0]

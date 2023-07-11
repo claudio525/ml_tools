@@ -7,3 +7,4 @@ from . import clustering
 from . import dist_calc
 from . import plots
 from . import tensorflow
+from . import st_tools
