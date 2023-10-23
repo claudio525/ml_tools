@@ -35,7 +35,7 @@ def plot_metrics(
 
     colors = sns.color_palette("tab10", len(metric_keys))
     for ix, key in enumerate(metric_keys):
-        cur_key = f"{key}_train"
+        cur_key = key if key in history.keys() else f"{key}_train"
         best_loss = (
             history[cur_key][best_epoch]
             if best_epoch is not None
@@ -44,7 +44,7 @@ def plot_metrics(
         label = f"{cur_key if metric_labels is None else metric_labels[ix]}_train {best_loss:.2f}"
         ax.plot(
             epochs,
-            history[f"{key}_train"],
+            history[cur_key],
             linestyle="-",
             c=colors[ix],
             label=label,
