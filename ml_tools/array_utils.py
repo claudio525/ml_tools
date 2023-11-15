@@ -41,3 +41,12 @@ def pandas_isin(array_1: np.ndarray, array_2: np.ndarray) -> np.ndarray:
     https://stackoverflow.com/questions/15939748/check-if-each-element-in-a-numpy-array-is-in-another-array
     """
     return pd.Index(pd.unique(array_2)).get_indexer(array_1) >= 0
+
+def numpy_str_join(sep: str, *arrays: np.ndarray):
+    """Join multiple numpy arrays of strings"""
+    result = arrays[0]
+    for cur_array in arrays[1:]:
+        result = np.char.add(result, sep)
+        result = np.char.add(result, cur_array)
+
+    return result
