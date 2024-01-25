@@ -41,7 +41,7 @@ def plot_metrics(
             if best_epoch is not None
             else np.min(history[cur_key])
         )
-        label = f"{cur_key if metric_labels is None else metric_labels[ix]}_train {best_loss:.2f}"
+        label = f"{cur_key if metric_labels is None else metric_labels[ix]} {best_loss:.2f}"
         ax.plot(
             epochs,
             history[cur_key],
@@ -55,7 +55,7 @@ def plot_metrics(
                 if best_epoch is not None
                 else np.min(history[cur_key])
             )
-            val_label = f"{cur_key if metric_labels is None else metric_labels[ix]}_val {best_loss:.2f}"
+            val_label = f"{cur_key if metric_labels is None else metric_labels[ix]} {best_loss:.2f}"
             ax.plot(
                 epochs,
                 history[f"{key}_val"],
