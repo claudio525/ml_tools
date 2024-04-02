@@ -1,3 +1,5 @@
+from typing import Union, List
+
 import numpy as np
 import pandas as pd
 
@@ -42,7 +44,7 @@ def pandas_isin(array_1: np.ndarray, array_2: np.ndarray) -> np.ndarray:
     """
     return pd.Index(pd.unique(array_2)).get_indexer(array_1) >= 0
 
-def numpy_str_join(sep: str, *arrays: np.ndarray):
+def numpy_str_join(sep: str, *arrays: Union[np.ndarray, str, List]):
     """Join multiple numpy arrays of strings"""
     result = arrays[0]
     for cur_array in arrays[1:]:
