@@ -4,6 +4,8 @@ import pickle
 from pathlib import Path
 from typing import Dict, Any, Union, Sequence
 import math
+import random, string
+
 
 import pandas as pd
 import numpy as np
@@ -167,6 +169,7 @@ def _save(
     if wandb_save:
         wandb.save(str(out_ffp))
 
+
 def norm_ts(ts_values: np.ndarray):
     """Normalises the timeseries to have zero mean and unit variance"""
     return (ts_values - np.mean(ts_values, axis=1)[:, np.newaxis]) / np.std(
@@ -174,4 +177,19 @@ def norm_ts(ts_values: np.ndarray):
     )[:, np.newaxis]
 
 
+def compute_binned_trend(x_data: np.ndarray, y_data: np.ndarray, n_bins: int = 10, bins: np.ndarray = None):
+    """Computes the binned trend of the given data"""
+    bins = np.linspace(x_data.min(), x_data.max(), n_bins + 1) if bins is None else bins
+    bin_centers = (bins[:-1] + bins[1:]) / 2
 
+    indices = np.digitize(x_data, bins)
+
+    bin_means = np.asarray([y_data[indices == i].mean() for i in range(1, len(bins))])
+    bin_stds = np.asarray([y_data[indices == i].std() for i in range(1, len(bins))])
+
+    return bin_centers, bin_means, bin_stds
+
+
+def gen_rand_word(length: int):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))
