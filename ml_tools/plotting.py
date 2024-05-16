@@ -74,7 +74,7 @@ def plot_metrics(
         ax.axvline(best_epoch, c="r", linewidth=1.0, linestyle="--", label="Best epoch")
 
     if y_lim is not None:
-        ax.ylim(y_lim)
+        ax.set_ylim(y_lim)
 
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Loss" if y_label is None else y_label)
