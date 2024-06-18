@@ -1,3 +1,4 @@
+import enum
 from typing import Dict, Tuple, Sequence, NamedTuple, Union
 from dataclasses import dataclass
 
@@ -22,9 +23,6 @@ def plot_metrics(
     ax: plt.Axes = None,
     y_lim: Tuple[float, float] = None,
     y_label: str = None,
-    # multi_keys: Sequence[str] = None,
-    # plot_train: bool = True,
-    # plot_val: bool = True,
     best_epoch: int = None,
 ):
     """Creates a loss plot for the given training history"""
@@ -118,10 +116,73 @@ def compare_loss(
 
     return fig
 
+class BinningMethod(enum.Enum):
+    EqualXSized = "equal_x_sized"
+    EqualCount = "equal_count"
+
 
 @dataclass
 class ScatterOptions:
-
+    """
+    Attributes:
+    -----------
+    x_axis: str
+    y_axis: str
+        The axis column name
+    x_min_use_qt: bool
+    x_max_use_qt: bool
+    y_min_use_qt: bool
+    y_max_use_qt: bool
+        Whether the min/max axis should be
+        determined based on a quantile
+    x_min: float, optional
+    x_max: float, optional
+    y_min: float, optional
+    y_max: float, optional
+        The min/max values for the x/y-axis
+        If x_min_use_qt/y_min_use_qt or
+        x_max_use_qt/y_max_use_qt is True,
+        this value is interpreted as a quantile
+    use_fixed_color: bool
+        Whether to use a fixed color for the scatter points
+    color: str
+        The color of the scatter points
+    color_axis: str
+        The column name to use for the color
+    cmap: str
+        The colormap to use
+    vmin_use_qt: bool
+    vmax_use_qt: bool
+        Whether the min/max color should be
+        determined based on a quantile
+    vmin: float, optional
+    vmax: float, optional
+        The min/max values for the color axis
+        If vmin_use_qt/vmax_use_qt is True,
+        this value is interpreted as a quantile
+    alpha: float
+        The transparency of the scatter points
+    marker_size: int
+        The size of the scatter points
+    binning_method: BinningMethod
+        The method to use for binning the data
+        for the trend line
+    show_trend_mean_line: bool
+        Whether to show the mean trend line
+    show_trend_std_line: bool
+        Whether to show the standard deviation trend line
+    trend_n_bins: int
+        The number of bins to use for the trend line
+    trend_n_data_points: int
+        The number of data points to use for the trend line
+        Only used for the EqualCount binning method
+    trend_line_style: str
+        The style of the trend line
+    trend_line_width: float
+        The width of the trend line
+    trend_color: str
+        The color of the trend line
+    """
     x_axis: str
     y_axis: str
 
@@ -148,9 +209,11 @@ class ScatterOptions:
     alpha: float = 1.0
     marker_size: int = 5.0
 
+    binning_method: BinningMethod = BinningMethod.EqualXSized
     show_trend_mean_line: bool = True
     show_trend_std_line: bool = False
     trend_n_bins: int = 10
+    trend_n_data_points: int = None
     trend_line_style: str = "-"
     trend_line_width: float = 1.0
     trend_color: str = "blue"
@@ -158,10 +221,9 @@ class ScatterOptions:
 
 def gen_scatter_trend_plot(df: pd.DataFrame, scatter_options: ScatterOptions):
     """
-    Generates a scatter plot with an optional trend line
-    using the specified options
+    Generates a scatter using the specified options
+    For details on the options, see the ScatterOptions class
     """
-
     fig, ax = plt.subplots(figsize=(12, 6))
 
     if scatter_options.use_fixed_color:
@@ -186,11 +248,21 @@ def gen_scatter_trend_plot(df: pd.DataFrame, scatter_options: ScatterOptions):
         plt.colorbar(cm, pad=0, label=scatter_options.color_axis)
 
     if scatter_options.show_trend_mean_line or scatter_options.show_trend_std_line:
-        bin_centers, bin_means, bin_stds = utils.compute_binned_trend(
-            df[scatter_options.x_axis],
-            df[scatter_options.y_axis],
-            n_bins=scatter_options.trend_n_bins,
-        )
+        if scatter_options.binning_method == BinningMethod.EqualXSized:
+            bin_centers, bin_means, bin_stds = utils.compute_binned_trend(
+                df[scatter_options.x_axis].values,
+                df[scatter_options.y_axis].values,
+                n_bins=scatter_options.trend_n_bins,
+            )
+        elif scatter_options.binning_method == BinningMethod.EqualCount:
+            bin_centers, bin_means, bin_stds = utils.compute_count_binned_trend(
+                df[scatter_options.x_axis].values,
+                df[scatter_options.y_axis].values,
+                n_points_per_bin=scatter_options.trend_n_data_points,
+                n_bins=scatter_options.trend_n_bins,
+            )
+        else:
+            raise NotImplementedError()
 
         if scatter_options.show_trend_mean_line:
             ax.plot(

@@ -177,8 +177,76 @@ def norm_ts(ts_values: np.ndarray):
     )[:, np.newaxis]
 
 
-def compute_binned_trend(x_data: np.ndarray, y_data: np.ndarray, n_bins: int = 10, bins: np.ndarray = None):
-    """Computes the binned trend of the given data"""
+def compute_count_binned_trend(
+    x_data: np.ndarray,
+    y_data: np.ndarray,
+    n_points_per_bin: int = None,
+    n_bins: int = None,
+):
+    """
+    Computes the trend for the given data, by splitting
+    the data into bins such that the number of datapoints
+    in each bin is equal
+
+    Parameters:
+    -----------
+    x_data: np.ndarray
+        The x-axis data
+    y_data: np.ndarray
+        The y-axis data
+    n_points_per_bin: int, optional
+        The number of points in each bin
+    n_bins: int, optional
+        The number of bins to split the data into
+        If n_points_per_bin is specified, this parameter
+        is ignored
+    Returns:
+    --------
+    bin_centers: np.ndarray
+        The center of each bin
+        Mid-point of the x-axis values in each bin
+    bin_means: np.ndarray
+        The mean of the y-axis values in each bin
+    bin_stds: np.ndarray
+        The standard deviation of the y-axis values in each bin
+    """
+    if not n_points_per_bin and not n_bins:
+        raise ValueError("Either n_points_per_bin or n_bins must be specified")
+
+    n_points_per_bin = (
+        n_points_per_bin if n_points_per_bin else math.ceil(len(x_data) / n_bins)
+    )
+
+    if n_bins is not None:
+        assert n_bins == math.ceil(len(x_data) / n_points_per_bin)
+
+    n_bins = math.ceil(len(x_data) / n_points_per_bin)
+
+    # Sort the data based on the x-axis
+    sort_indices = np.argsort(x_data)
+
+    # Compute the trend for each bin
+    bin_centers, bin_means, bin_stds = [], [], []
+    for i in range(n_bins):
+        start_idx = i * n_points_per_bin
+        end_idx = (i + 1) * n_points_per_bin
+
+        cur_x_data = x_data[sort_indices[start_idx:end_idx]]
+        cur_y_data = y_data[sort_indices[start_idx:end_idx]]
+
+        bin_centers.append(cur_x_data.min() + (cur_x_data.max() - cur_x_data.min()) / 2)
+        bin_means.append(cur_y_data.mean())
+        bin_stds.append(cur_y_data.std())
+
+    return np.asarray(bin_centers), np.asarray(bin_means), np.asarray(bin_stds)
+
+
+def compute_binned_trend(
+    x_data: np.ndarray, y_data: np.ndarray, n_bins: int = 10, bins: np.ndarray = None
+):
+    """
+    Computes the binned trend of the given data
+    """
     bins = np.linspace(x_data.min(), x_data.max(), n_bins + 1) if bins is None else bins
     bin_centers = (bins[:-1] + bins[1:]) / 2
 
@@ -191,5 +259,5 @@ def compute_binned_trend(x_data: np.ndarray, y_data: np.ndarray, n_bins: int = 1
 
 
 def gen_rand_word(length: int):
-   letters = string.ascii_lowercase
-   return ''.join(random.choice(letters) for i in range(length))
+    letters = string.ascii_lowercase
+    return "".join(random.choice(letters) for i in range(length))
