@@ -1,1 +1,1 @@
-from . import utils
+from .utils import update_st_width

@@ -11,6 +11,7 @@ from . import utils
 
 
 class LossPlotData(NamedTuple):
+    """Loss plot data"""
     history: Dict
     label: str
     color: str
@@ -25,9 +26,33 @@ def plot_metrics(
     y_label: str = None,
     best_epoch: int = None,
 ):
-    """Creates a loss plot for the given training history"""
-    # assert plot_val or plot_train
+    """
+    Creates a loss plot for the given epoch history
 
+    Parameters
+    ----------
+    history: Dict
+        The epoch history dictionary
+        Expected keys: {metric_keys}_train, {metric_keys}_val
+    metric_keys: Sequence[str]
+        The keys to plot from the history
+    metric_labels: Sequence[str], optional
+        The labels to use for the metrics
+    ax: plt.Axes, optional
+        The axes to use for plotting
+        If None, a new figure is created
+    y_lim: Tuple[float, float], optional
+        The y-axis limits
+    y_label:
+        The y-axis label
+    best_epoch: int, optional
+        The best epoch to highlight in the plot
+
+    Returns
+    -------
+    fig: plt.Figure
+        The figure object
+    """
     fig = None
     if ax is None:
         fig = plt.figure(figsize=(16, 10), dpi=200)
@@ -85,8 +110,22 @@ def plot_metrics(
 def compare_loss(
     loss_plot_data: Sequence[LossPlotData], y_lim: Tuple[float, float] = None
 ):
-    """Creates a plot for comparing multiple single-losses, i.e. not for
-    comparing losses from a multi-output model"""
+    """
+    Creates a plot for comparing multiple single-losses
+    Not suitable for comparing losses from a multi-output model
+
+    Parameters
+    ----------
+    loss_plot_data: Sequence[LossPlotData]
+        The loss data to plot
+    y_lim: Tuple[float, float], optional
+        The y-axis limits
+
+    Returns
+    -------
+    fig: plt.Figure
+        The figure object
+    """
     fig = plt.figure(figsize=(16, 10), dpi=200)
 
     for cur_data in loss_plot_data:
@@ -116,113 +155,100 @@ def compare_loss(
 
     return fig
 
+
 class BinningMethod(enum.Enum):
+    """The binning method for determining the trend line"""
+
     EqualXSized = "equal_x_sized"
+    """Bins are created with equal x-axis sizes"""
     EqualCount = "equal_count"
+    """Bins are created with equal data point counts"""
 
 
 @dataclass
 class ScatterOptions:
-    """
-    Attributes:
-    -----------
     x_axis: str
+    """The x-axis column name"""
     y_axis: str
-        The axis column name
-    x_min_use_qt: bool
-    x_max_use_qt: bool
-    y_min_use_qt: bool
-    y_max_use_qt: bool
-        Whether the min/max axis should be
-        determined based on a quantile
-    x_min: float, optional
-    x_max: float, optional
-    y_min: float, optional
-    y_max: float, optional
-        The min/max values for the x/y-axis
-        If x_min_use_qt/y_min_use_qt or
-        x_max_use_qt/y_max_use_qt is True,
-        this value is interpreted as a quantile
-    use_fixed_color: bool
-        Whether to use a fixed color for the scatter points
-    color: str
-        The color of the scatter points
-    color_axis: str
-        The column name to use for the color
-    cmap: str
-        The colormap to use
-    vmin_use_qt: bool
-    vmax_use_qt: bool
-        Whether the min/max color should be
-        determined based on a quantile
-    vmin: float, optional
-    vmax: float, optional
-        The min/max values for the color axis
-        If vmin_use_qt/vmax_use_qt is True,
-        this value is interpreted as a quantile
-    alpha: float
-        The transparency of the scatter points
-    marker_size: int
-        The size of the scatter points
-    binning_method: BinningMethod
-        The method to use for binning the data
-        for the trend line
-    show_trend_mean_line: bool
-        Whether to show the mean trend line
-    show_trend_std_line: bool
-        Whether to show the standard deviation trend line
-    trend_n_bins: int
-        The number of bins to use for the trend line
-    trend_n_data_points: int
-        The number of data points to use for the trend line
-        Only used for the EqualCount binning method
-    trend_line_style: str
-        The style of the trend line
-    trend_line_width: float
-        The width of the trend line
-    trend_color: str
-        The color of the trend line
-    """
-    x_axis: str
-    y_axis: str
+    """The y-axis column name"""
 
     x_min_use_qt: bool = False
+    """Whether to use a quantile for the x-axis min"""
     x_max_use_qt: bool = False
+    """Whether to use a quantile for the x-axis max"""
     x_min: Union[float, None] = None
+    """The x-axis min value"""
     x_max: Union[float, None] = None
+    """The x-axis max value"""
 
     y_min_use_qt: bool = False
+    """Whether to use a quantile for the y-axis min"""
     y_max_use_qt: bool = False
+    """Whether to use a quantile for the y-axis max"""
     y_min: Union[float, None] = None
+    """The y-axis min value"""
     y_max: Union[float, None] = None
+    """The y-axis max value"""
 
     use_fixed_color: bool = True
+    """Whether to use a fixed color for the scatter points"""
     color: str = "blue"
+    """The color of the scatter points"""
 
     color_axis: str = None
+    """The column name to use for the color"""
     cmap: str = None
+    """The colormap to use"""
     vmin_use_qt: bool = False
+    """Whether to use a quantile for the min color"""
     vmax_use_qt: bool = False
+    """Whether to use a quantile for the max color"""
     vmin: Union[float, None] = None
+    """The min color value"""
     vmax: Union[float, None] = None
+    """The max color value"""
 
     alpha: float = 1.0
+    """The transparency of the scatter points"""
     marker_size: int = 5.0
+    """The size of the scatter points"""
 
     binning_method: BinningMethod = BinningMethod.EqualXSized
+    """The method to use for binning of the data for the trend line"""
     show_trend_mean_line: bool = True
+    """Whether to show the mean trend line"""
     show_trend_std_line: bool = False
+    """Whether to show the standard deviation of trend line"""
     trend_n_bins: int = 10
+    """The number of bins to use for the trend line"""
     trend_n_data_points: int = None
+    """The number of data points per trend line bin"""
     trend_line_style: str = "-"
+    """The style of the trend line"""
     trend_line_width: float = 1.0
+    """The width of the trend line"""
     trend_color: str = "blue"
+    """The color of the trend line"""
 
 
 def gen_scatter_trend_plot(df: pd.DataFrame, scatter_options: ScatterOptions):
     """
     Generates a scatter using the specified options
     For details on the options, see the ScatterOptions class
+
+    Parameters
+    ----------
+    df: pd.DataFrame
+        The data frame to use
+    scatter_options: ScatterOptions
+        The options to use for the plot
+
+    Returns
+    -------
+    fig: plt.Figure
+        The figure object
+    ax: plt.Axes
+        The axes object
     """
     fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -286,22 +312,30 @@ def gen_scatter_trend_plot(df: pd.DataFrame, scatter_options: ScatterOptions):
 
     ax.set_xlim(
         (
-            np.quantile(df[scatter_options.x_axis], scatter_options.x_min)
-            if scatter_options.x_min_use_qt
-            else scatter_options.x_min,
-            np.quantile(df[scatter_options.x_axis], scatter_options.x_max)
-            if scatter_options.x_max_use_qt
-            else scatter_options.x_max,
+            (
+                np.quantile(df[scatter_options.x_axis], scatter_options.x_min)
+                if scatter_options.x_min_use_qt
+                else scatter_options.x_min
+            ),
+            (
+                np.quantile(df[scatter_options.x_axis], scatter_options.x_max)
+                if scatter_options.x_max_use_qt
+                else scatter_options.x_max
+            ),
         )
     )
     ax.set_ylim(
         (
-            np.quantile(df[scatter_options.y_axis], scatter_options.y_min)
-            if scatter_options.y_min_use_qt
-            else scatter_options.y_min,
-            np.quantile(df[scatter_options.y_axis], scatter_options.y_max)
-            if scatter_options.y_max_use_qt
-            else scatter_options.y_max,
+            (
+                np.quantile(df[scatter_options.y_axis], scatter_options.y_min)
+                if scatter_options.y_min_use_qt
+                else scatter_options.y_min
+            ),
+            (
+                np.quantile(df[scatter_options.y_axis], scatter_options.y_max)
+                if scatter_options.y_max_use_qt
+                else scatter_options.y_max
+            ),
         )
     )
 

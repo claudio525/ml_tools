@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 
 
-
 def compute_dtw_dist_matrix(
     series_df: pd.DataFrame, dtw_params: Dict = None
 ) -> pd.DataFrame:

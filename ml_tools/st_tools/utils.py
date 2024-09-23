@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 def update_st_width(
     max_width: int,
     padding_top: int,
@@ -7,7 +8,22 @@ def update_st_width(
     padding_right: int,
     padding_left: int,
 ):
-    """Updates the with and padding of the streamlit app"""
+    """
+    Updates the with and padding of the streamlit app
+
+    Parameters
+    ----------
+    max_width: int
+        Maximum width of the app
+    padding_top: int
+        Padding at the top
+    padding_bottom: int
+        Padding at the bottom
+    padding_right: int
+        Padding at the right
+    padding_left: int
+        Padding at the left
+    """
     st.markdown(
         f"""
     <style>
