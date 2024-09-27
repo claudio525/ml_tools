@@ -282,6 +282,7 @@ def compute_count_binned_trend(
     y_data: np.ndarray,
     n_points_per_bin: int = None,
     n_bins: int = None,
+    ignore_nans: bool = False,
 ):
     """
     Computes the trend for the given data, by splitting
@@ -300,6 +301,9 @@ def compute_count_binned_trend(
         The number of bins to split the data into.
         If n_points_per_bin is specified, this parameter
         is ignored.
+    ignore_nans: bool, optional
+        Whether to ignore NaN values in the data
+        when computing mean & standard deviation
 
     Returns
     --------
@@ -310,6 +314,9 @@ def compute_count_binned_trend(
     bin_stds: np.ndarray
         The standard deviation of the y-axis values in each bin
     """
+    if not ignore_nans and np.isnan(y_data).any():
+        print(f"Warning: NaN values detected in the data, and ignore_nans is False")
+
     if not n_points_per_bin and not n_bins:
         raise ValueError("Either n_points_per_bin or n_bins must be specified")
 
@@ -335,8 +342,9 @@ def compute_count_binned_trend(
         cur_y_data = y_data[sort_indices[start_idx:end_idx]]
 
         bin_centers.append(cur_x_data.min() + (cur_x_data.max() - cur_x_data.min()) / 2)
-        bin_means.append(cur_y_data.mean())
-        bin_stds.append(cur_y_data.std())
+
+        bin_means.append(np.nanmean(cur_y_data) if ignore_nans else cur_y_data.mean())
+        bin_stds.append(np.nanstd(cur_y_data) if ignore_nans else cur_y_data.std())
 
     return np.asarray(bin_centers), np.asarray(bin_means), np.asarray(bin_stds)
 

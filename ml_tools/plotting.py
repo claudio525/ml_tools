@@ -10,8 +10,72 @@ import seaborn as sns
 from . import utils
 
 
+def get_fig_axes(
+    n_subplots: int, n_cols: int, n_rows: int, ind_figsize: tuple[int, int]
+):
+    """
+    Given the number of desired subplots, and either the desired
+    number of columns or rows, will return the figure and
+    appropriate number of axes objects.
+
+    Note I:One of n_cols or n_rows must be specified,
+    the other has to be set to -1.
+
+    Note II: The number of axes can be larger than
+    the specified number of subplots.
+
+    Parameters
+    ----------
+    n_subplots: int
+        The number of subplots.
+    n_cols:
+        The number of columns.
+        Set to -1 if n_rows is specified.
+    n_rows:
+        The number of rows.
+        Set to -1 if n_cols is specified.
+    ind_figsize:
+        The individual figure size for each subplot
+
+    Returns
+    -------
+    fig: plt.Figure
+        The figure object
+    axs: List[plt.Axes]
+        The axes objects
+
+    Raises
+    ------
+    ValueError
+        If both n_cols and n_rows are specified
+
+    Examples
+    --------
+    >>> fig, axs = get_fig_axes(4, 2, -1, (5, 5))
+    >>> len(axs)
+    4
+    >>> fig, axs = get_fig_axes(5, -1, 2, (5, 5))
+    >>> len(axs)
+    6
+    """
+
+    if n_cols > 0:
+        n_rows = int(np.ceil(n_subplots / n_cols))
+    elif n_rows > 0:
+        n_cols = int(np.ceil(n_subplots / n_rows))
+    else:
+        raise ValueError("One of n_cols/n_rows must be specified")
+
+    figsize = (n_cols * ind_figsize[0], n_rows * ind_figsize[1])
+    fig, axs = plt.subplots(n_rows, n_cols, figsize=figsize)
+    axs = axs.flatten()
+
+    return fig, axs
+
+
 class LossPlotData(NamedTuple):
     """Loss plot data"""
+
     history: Dict
     label: str
     color: str
