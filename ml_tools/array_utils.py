@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Sequence
 
 import numpy as np
 import pandas as pd
@@ -160,7 +160,7 @@ def pandas_isin(array_1: np.ndarray, array_2: np.ndarray) -> np.ndarray:
     return pd.Index(pd.unique(array_2)).get_indexer(array_1) >= 0
 
 
-def numpy_str_join(sep: str, *arrays: Union[np.ndarray, str, List]) -> np.ndarray[str]:
+def numpy_str_join(sep: str, *arrays: str | Sequence[str]) -> np.ndarray[str]:
     """
     Joins multiple string arrays together using the specified separator.
     Also support joining of string values, or a combination of both.

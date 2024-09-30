@@ -5,3 +5,4 @@ tslearn
 matplotlib
 seaborn
 pyyaml
+pytorch
