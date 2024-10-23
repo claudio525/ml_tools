@@ -350,7 +350,7 @@ def compute_count_binned_trend(
 
 
 def compute_binned_trend(
-    x_data: np.ndarray, y_data: np.ndarray, n_bins: int = 10, bins: np.ndarray = None
+    x_data: np.ndarray, y_data: np.ndarray, n_bins: int = 10, bins: np.ndarray = None, ignore_nans: bool = False
 ):
     """
     Computes the binned trend of the given data.
@@ -367,6 +367,9 @@ def compute_binned_trend(
         The number of bins to split the data into
     bins: np.ndarray, optional
         The bin edges to use for splitting the data
+    ignore_nans: bool, optional
+        Whether to ignore NaN values in the data
+        when computing mean & standard deviation
 
     Returns
     -------
@@ -377,12 +380,22 @@ def compute_binned_trend(
     bin_stds: np.ndarray
         The standard deviation of the y-axis values in each bin
     """
+    if not ignore_nans and np.isnan(y_data).any():
+        print(f"Warning: NaN values detected in the data, and ignore_nans is False")
+
+
     bins = np.linspace(x_data.min(), x_data.max(), n_bins + 1) if bins is None else bins
     bin_centers = (bins[:-1] + bins[1:]) / 2
 
     indices = np.digitize(x_data, bins)
 
-    bin_means = np.asarray([y_data[indices == i].mean() for i in range(1, len(bins))])
-    bin_stds = np.asarray([y_data[indices == i].std() for i in range(1, len(bins))])
+    bin_means, bin_stds = [], []
+    for i in range(1, len(bins)):
+        cur_y_data = y_data[indices == i]
+        bin_means.append(np.nanmean(cur_y_data) if ignore_nans else cur_y_data.mean())
+        bin_stds.append(np.nanstd(cur_y_data) if ignore_nans else cur_y_data.std())
 
-    return bin_centers, bin_means, bin_stds
+    # bin_means = np.asarray([y_data[indices == i].mean() for i in range(1, len(bins))])
+    # bin_stds = np.asarray([y_data[indices == i].std() for i in range(1, len(bins))])
+
+    return np.asarray(bin_centers), np.asarray(bin_means), np.asarray(bin_stds)
