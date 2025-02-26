@@ -29,7 +29,7 @@ class GenericObjJSONEncoder(json.JSONEncoder):
         """
         try:
             return json.JSONEncoder.default(self, obj)
-        except TypeError as ex:
+        except TypeError:
             return str(obj)
 
 
@@ -283,6 +283,7 @@ def compute_count_binned_trend(
     n_points_per_bin: int = None,
     n_bins: int = None,
     ignore_nans: bool = False,
+    verbose: bool = True,
 ):
     """
     Computes the trend for the given data, by splitting
@@ -314,10 +315,16 @@ def compute_count_binned_trend(
     bin_stds: np.ndarray
         The standard deviation of the y-axis values in each bin
     """
-    if not ignore_nans and np.isnan(y_data).any():
-        print(f"Warning: NaN values detected in the data, and ignore_nans is False")
+    if not ignore_nans and np.isnan(y_data).any() and verbose:
+        print("Warning: NaN values detected in the data, and ignore_nans is False")
 
-    if not n_points_per_bin and not n_bins:
+    if ignore_nans:
+        nan_mask = np.isnan(y_data)
+        x_data, y_data = x_data[~nan_mask], y_data[~nan_mask]
+        if verbose:
+            print(f"Ignoring {np.count_nonzero(nan_mask)} NaN values")
+
+    if not n_points_per_bin and not n_bins and verbose:
         raise ValueError("Either n_points_per_bin or n_bins must be specified")
 
     n_points_per_bin = (
@@ -343,8 +350,8 @@ def compute_count_binned_trend(
 
         bin_centers.append(cur_x_data.min() + (cur_x_data.max() - cur_x_data.min()) / 2)
 
-        bin_means.append(np.nanmean(cur_y_data) if ignore_nans else cur_y_data.mean())
-        bin_stds.append(np.nanstd(cur_y_data) if ignore_nans else cur_y_data.std())
+        bin_means.append(cur_y_data.mean())
+        bin_stds.append(cur_y_data.std())
 
     return np.asarray(bin_centers), np.asarray(bin_means), np.asarray(bin_stds)
 
@@ -381,7 +388,7 @@ def compute_binned_trend(
         The standard deviation of the y-axis values in each bin
     """
     if not ignore_nans and np.isnan(y_data).any():
-        print(f"Warning: NaN values detected in the data, and ignore_nans is False")
+        print("Warning: NaN values detected in the data, and ignore_nans is False")
 
 
     bins = np.linspace(x_data.min(), x_data.max(), n_bins + 1) if bins is None else bins

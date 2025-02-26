@@ -21,8 +21,8 @@ def get_fig_axes(
     Note I:One of n_cols or n_rows must be specified,
     the other has to be set to -1.
 
-    Note II: The number of axes can be larger than
-    the specified number of subplots.
+    Note II: The returned number of axes can be
+    larger than the specified number of subplots.
 
     Parameters
     ----------
@@ -30,10 +30,10 @@ def get_fig_axes(
         The number of subplots.
     n_cols:
         The number of columns.
-        Set to -1 if n_rows is specified.
+        Set to -1 if n_rows is to be computed.
     n_rows:
         The number of rows.
-        Set to -1 if n_cols is specified.
+        Set to -1 if n_cols is to be computed.
     ind_figsize:
         The individual figure size for each subplot
 
@@ -57,18 +57,26 @@ def get_fig_axes(
     >>> fig, axs = get_fig_axes(5, -1, 2, (5, 5))
     >>> len(axs)
     6
+    >>> fig, axs = get_fig_axes(5, -1, -1, (5, 5))
+    Traceback (most recent call last):
+        ...
+    ValueError: One of n_cols/n_rows must be specified
+    >>> fig, axs = get_fig_axes(6, 2, 3, (5, 5))
+    >>>len(axs)
+    6
     """
 
-    if n_cols > 0:
-        n_rows = int(np.ceil(n_subplots / n_cols))
-    elif n_rows > 0:
-        n_cols = int(np.ceil(n_subplots / n_rows))
-    else:
-        raise ValueError("One of n_cols/n_rows must be specified")
+    if n_cols == -1 or n_rows == -1:
+        if n_cols > 0:
+            n_rows = int(np.ceil(n_subplots / n_cols))
+        elif n_rows > 0:
+            n_cols = int(np.ceil(n_subplots / n_rows))
+        else:
+            raise ValueError("One of n_cols/n_rows must be specified")
 
     figsize = (n_cols * ind_figsize[0], n_rows * ind_figsize[1])
     fig, axs = plt.subplots(n_rows, n_cols, figsize=figsize)
-    axs = axs.flatten()
+    axs = list(axs.flatten())
 
     return fig, axs
 

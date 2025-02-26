@@ -59,3 +59,4 @@ def render_quarto(
 
     except subprocess.CalledProcessError as e:
         print(f"Error during rendering: {e.stderr.decode()}")
+        print(f"Command: {command}")
