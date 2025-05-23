@@ -76,7 +76,11 @@ def get_fig_axes(
 
     figsize = (n_cols * ind_figsize[0], n_rows * ind_figsize[1])
     fig, axs = plt.subplots(n_rows, n_cols, figsize=figsize)
-    axs = list(axs.flatten())
+
+    if n_subplots == 1:
+        axs = (axs,)
+    else:
+        axs = list(axs.flatten())
 
     return fig, axs
 

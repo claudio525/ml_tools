@@ -4,10 +4,12 @@ import pickle
 import math
 from pathlib import Path
 from typing import Dict, Any, Union, Sequence
-
+from scipy import interpolate
+from joblib import Parallel, delayed
 
 import numpy as np
 import yaml
+from statsmodels.nonparametric.smoothers_lowess import lowess
 
 
 class GenericObjJSONEncoder(json.JSONEncoder):
@@ -357,7 +359,11 @@ def compute_count_binned_trend(
 
 
 def compute_binned_trend(
-    x_data: np.ndarray, y_data: np.ndarray, n_bins: int = 10, bins: np.ndarray = None, ignore_nans: bool = False
+    x_data: np.ndarray,
+    y_data: np.ndarray,
+    n_bins: int = 10,
+    bins: np.ndarray = None,
+    ignore_nans: bool = False,
 ):
     """
     Computes the binned trend of the given data.
@@ -390,7 +396,6 @@ def compute_binned_trend(
     if not ignore_nans and np.isnan(y_data).any():
         print("Warning: NaN values detected in the data, and ignore_nans is False")
 
-
     bins = np.linspace(x_data.min(), x_data.max(), n_bins + 1) if bins is None else bins
     bin_centers = (bins[:-1] + bins[1:]) / 2
 
@@ -406,3 +411,40 @@ def compute_binned_trend(
     # bin_stds = np.asarray([y_data[indices == i].std() for i in range(1, len(bins))])
 
     return np.asarray(bin_centers), np.asarray(bin_means), np.asarray(bin_stds)
+
+
+def compute_lowess_bootstrap(
+    x: np.ndarray,
+    y: np.ndarray,
+    frac: float = 0.1,
+    n_bootstrap_runs: int = 1000,
+    sample_frac: float = 1.0,
+    n_x_values: int = 1000,
+    n_procs: int = -1,
+):
+    def _sample(x: np.ndarray, y: np.ndarray, x_values: np.ndarray, n_samples: int):
+        samples = np.random.choice(x.size, n_samples, replace=True)
+
+        x_sample = x[samples]
+        y_sample = y[samples]
+
+        y_values = lowess(
+            y_sample, x_sample, frac=frac, xvals=x_values, is_sorted=False
+        )
+
+        return y_values
+
+    # Run bootstrapping
+    n_samples = int(sample_frac * x.size)
+    x_values = np.linspace(x.min(), x.max(), n_x_values)
+
+    y_values = Parallel(n_jobs=n_procs)(
+        delayed(_sample)(x, y, x_values, n_samples) for _ in range(n_bootstrap_runs)
+    )
+    y_values = np.stack(y_values, axis=1)
+
+    # mean = np.mean(y_values, axis=1)
+    # std = np.std(y_values, axis=1)
+    # std_err = std / np.sqrt(n_bootstrap_runs)
+
+    return x_values, y_values

@@ -128,6 +128,47 @@ def find_nearest_smaller(array: np.ndarray[float], value: float) -> int:
         if ix == 0:
             raise ValueError("Value is smaller than the smallest value in the array")
         return ix - 1
+    
+def find_nearest_smaller_vec(array: np.ndarray[float], values: np.ndarray[float]) -> np.ndarray[int]:
+    """
+    Returns the indices of the entries that are
+    closest to the specified values. If no exact match
+    is found the nearest smaller value is returned.
+
+    This assumes that the array is sorted!
+
+    Parameters
+    ----------
+    array: array of floats
+        The array to search
+    values: array of floats
+        The values to search for
+
+    Returns
+    -------
+    ix: np.ndarray[int]
+        The indices of the nearest (smaller) values
+
+    Raises
+    ------
+    ValueError
+        If any value is smaller than the smallest value in the array
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> arr = np.array([1.0, 2.5, 3.8, 4.2, 5.9, 7.1])
+    >>> values = np.array([4.0, 5.0, 1.0])
+    >>> find_nearest_smaller_vec(arr, values)
+    array([2, 3, 0])
+    """
+    if len(array.shape) != 1:
+        raise ValueError("Input array must be 1D")
+    if len(values.shape) != 1:
+        raise ValueError("Input values must be 1D")
+    
+    tmp = np.tile((np.arange(array.size)), (values.shape[0], 1))
+    return np.argmax(np.where(array <= values[:, None], tmp, -1), axis=1)
 
 
 def pandas_isin(array_1: np.ndarray, array_2: np.ndarray) -> np.ndarray:

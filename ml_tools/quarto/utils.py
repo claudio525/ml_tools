@@ -40,6 +40,7 @@ def render_quarto(
     command = f"source ~/.zshrc && {activate_env_cmd} && {quarto_command}"
     try:
         # Run the command
+        print(f"Running notebook: {notebook_ffp.name}")
         result = subprocess.run(
             command,
             check=True,
