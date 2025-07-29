@@ -11,7 +11,7 @@ from . import utils
 
 
 def get_fig_axes(
-    n_subplots: int, n_cols: int, n_rows: int, ind_figsize: tuple[int, int]
+    n_subplots: int, n_cols: int, n_rows: int, ind_figsize: tuple[int, int], dpi: int | None = None
 ):
     """
     Given the number of desired subplots, and either the desired
@@ -36,6 +36,8 @@ def get_fig_axes(
         Set to -1 if n_cols is to be computed.
     ind_figsize:
         The individual figure size for each subplot
+    dpi: int | None, optional
+        The DPI to use for the figure.
 
     Returns
     -------
@@ -75,7 +77,7 @@ def get_fig_axes(
             raise ValueError("One of n_cols/n_rows must be specified")
 
     figsize = (n_cols * ind_figsize[0], n_rows * ind_figsize[1])
-    fig, axs = plt.subplots(n_rows, n_cols, figsize=figsize)
+    fig, axs = plt.subplots(n_rows, n_cols, figsize=figsize, dpi=dpi)
 
     if n_subplots == 1:
         axs = (axs,)

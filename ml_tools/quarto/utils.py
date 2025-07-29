@@ -2,6 +2,12 @@ from pathlib import Path
 import shutil
 import subprocess
 
+try:
+    import papermill as pm
+    HAS_QUARTO_PAPERMILL = True
+except ImportError:
+    HAS_QUARTO_PAPERMILL = False
+
 def render_quarto(
     activate_env_cmd: str,
     notebook_ffp: Path,
@@ -27,6 +33,8 @@ def render_quarto(
         For each key-value pair, the following is
         added to the command: -P key:value
     """
+    if not HAS_QUARTO_PAPERMILL:
+        raise ImportError("Quarto or Papermill is not installed. Please install it to use this function.")
 
     # Define the quarto command
     quarto_command = (

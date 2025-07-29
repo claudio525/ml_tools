@@ -16,24 +16,24 @@ from . import array_utils
 from . import plotting
 from . import distance_calculation
 from . import dl_model_arch_utils
+from . import streamlit
+from . import quarto
 
+
+optional_imports = []
 try:
     from . import torch
+    optional_imports.append("torch")
 except ImportError:
-    print(
-        f"Failed to import the torch module. This is likely because PyTorch is not installed."
-    )
+    pass
 
-try:
-    from . import quarto
-except ImportError:
-    print(
-        f"Failed to import the quarto module. This is likely because quarto is not installed."
-    )
 
-try:
-    from . import streamlit
-except ImportError:
-    print(
-        f"Failed to import the streamlit module. This is likely because streamlit is not installed."
-    )
+__all__ = [
+    "utils",
+    "array_utils",
+    "plotting",
+    "distance_calculation",
+    "streamlit",
+    "dl_model_arch_utils",
+    "quarto",
+] + optional_imports

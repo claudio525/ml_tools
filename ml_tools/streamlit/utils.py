@@ -1,4 +1,9 @@
-import streamlit as st
+try:
+    HAS_STREAMLIT = True
+    import streamlit as st
+except ImportError:
+    HAS_STREAMLIT = False
+    st = None
 
 
 def update_st_width(
@@ -24,6 +29,9 @@ def update_st_width(
     padding_left: int
         Padding at the left
     """
+    if not HAS_STREAMLIT:
+        raise ImportError("Streamlit is not installed. Please install it to use this function.")
+
     st.markdown(
         f"""
     <style>
