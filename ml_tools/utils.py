@@ -7,6 +7,7 @@ from typing import Dict, Any, Union, Sequence
 from scipy import interpolate
 from joblib import Parallel, delayed
 
+import pandas as pd
 import numpy as np
 import yaml
 from statsmodels.nonparametric.smoothers_lowess import lowess
@@ -76,6 +77,26 @@ def create_run_id(include_seconds: bool = False) -> str:
     id = datetime.datetime.now().strftime(f"%m%d_%H%M{'%S' if include_seconds else ''}")
     return id
 
+def create_run_name(suffix: str = None, include_seconds: bool = False) -> str:
+    """
+    Creates a run name based on the month, day & time, with a suffix
+
+    Parameters
+    ----------
+    suffix: str
+        The suffix to append to the run ID
+        Don't include the leading underscore!
+    include_seconds: bool, optional
+        Whether to include the seconds in the ID
+
+    Returns
+    -------
+    str
+        The run name
+    """
+    id = create_run_id(include_seconds)
+    suffix = f"_{suffix}" if suffix is not None and len(suffix) > 0 else ""
+    return f"{id}{suffix}"
 
 def write_to_json(data: Dict, ffp: Path, clobber: bool = False):
     """
@@ -442,9 +463,5 @@ def compute_lowess_bootstrap(
         delayed(_sample)(x, y, x_values, n_samples) for _ in range(n_bootstrap_runs)
     )
     y_values = np.stack(y_values, axis=1)
-
-    # mean = np.mean(y_values, axis=1)
-    # std = np.std(y_values, axis=1)
-    # std_err = std / np.sqrt(n_bootstrap_runs)
 
     return x_values, y_values
