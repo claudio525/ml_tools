@@ -1,3 +1,5 @@
+name: Publish to TestPyPI
+run-name: Publish Python Package to TestPyPI for release ${{ github.event.release.tag_name }}
 
 on:
   release:
@@ -16,6 +18,12 @@ jobs:
           uses: actions/setup-python@v5
           with:
             python-version: "3.x"
+
+        - name: Set version from release tag
+          run: |
+            VERSION=${GITHUB_REF#refs/tags/}
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+
 
         - name: Install pypa/build
           run: >-
@@ -38,7 +46,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/cs_ml_tools
+      url: https://test.pypi.org/p/cs-ml-tools
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
