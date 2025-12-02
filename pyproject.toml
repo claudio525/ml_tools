@@ -12,5 +12,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dynamic = ["version", "dependencies"]
 
+[tool.setuptools_scm]
+
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
