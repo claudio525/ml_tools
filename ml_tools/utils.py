@@ -1,7 +1,9 @@
+import sys
 import json
 import datetime
 import pickle
 import math
+import logging
 from pathlib import Path
 from typing import Dict, Any, Union, Sequence
 from joblib import Parallel, delayed
@@ -195,7 +197,7 @@ def write_pickle(obj: Any, ffp: Path, clobber: bool = False):
         pickle.dump(obj, f)
 
 
-def load_picke(ffp: Union[Path, str]):
+def load_pickle(ffp: Union[Path, str]):
     """
     Loads the pickle file
 
@@ -463,3 +465,45 @@ def compute_lowess_bootstrap(
     y_values = np.stack(y_values, axis=1)
 
     return x_values, y_values
+
+
+def setup_logging(
+    log_file: Path = None,
+    file_level=logging.DEBUG,
+    enable_console: bool = True,
+    console_level=logging.INFO,
+    file_append: bool = False,
+):
+    # Create a logger
+    logger = logging.getLogger()
+    # Set logger to the lowest level of any handler
+    logger.setLevel(logging.DEBUG)
+
+    # Clear any existing handlers
+    logger.handlers = []
+
+    # Create file handler with its own level
+    if log_file is not None:
+        file_handler = logging.FileHandler(log_file, mode="a" if file_append else "w")
+        file_handler.setLevel(file_level)
+        file_handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
+        logger.addHandler(file_handler)
+
+    # Create console handler with its own level
+    if enable_console:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(console_level)
+        console_handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            # logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        )
+        logger.addHandler(console_handler)
+
+    # Suppress numba & matplotlib logging
+    logging.getLogger("numba").setLevel(logging.WARNING)
+    logging.getLogger("matplotlib").setLevel(logging.WARNING)
+    logging.getLogger("pyogrio._io").setLevel(logging.WARNING)
+
+    return logger

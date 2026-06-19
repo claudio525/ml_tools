@@ -12,7 +12,11 @@ readme = "README.md"
 requires-python = ">=3.11"
 dynamic = ["version", "dependencies"]
 
+[project.urls]
+Source = "https://github.com/claudio525/ml_tools"
+
 [tool.setuptools_scm]
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
+

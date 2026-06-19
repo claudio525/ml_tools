@@ -11,14 +11,18 @@ from . import utils
 
 
 def get_fig_axes(
-    n_subplots: int, n_cols: int, n_rows: int, ind_figsize: tuple[int, int], dpi: int | None = None
+    n_subplots: int,
+    n_cols: int,
+    n_rows: int,
+    ind_figsize: tuple[int, int],
+    dpi: int | None = None,
 ):
     """
     Given the number of desired subplots, and either the desired
     number of columns or rows, will return the figure and
     appropriate number of axes objects.
 
-    Note I:One of n_cols or n_rows must be specified,
+    Note I: One of n_cols or n_rows must be specified,
     the other has to be set to -1.
 
     Note II: The returned number of axes can be
@@ -309,7 +313,9 @@ class ScatterOptions:
     """The color of the trend line"""
 
 
-def gen_scatter_trend_plot(df: pd.DataFrame, scatter_options: ScatterOptions):
+def gen_scatter_trend_plot(
+    df: pd.DataFrame, scatter_options: ScatterOptions, **fig_kwargs
+) -> Tuple[plt.Figure, plt.Axes]:
     """
     Generates a scatter using the specified options
     For details on the options, see the ScatterOptions class
@@ -328,7 +334,8 @@ def gen_scatter_trend_plot(df: pd.DataFrame, scatter_options: ScatterOptions):
     ax: plt.Axes
         The axes object
     """
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig_kwargs = {"figsize": (12, 6)} | fig_kwargs
+    fig, ax = plt.subplots(**fig_kwargs)
 
     if scatter_options.use_fixed_color:
         ax.scatter(

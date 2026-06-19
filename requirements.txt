@@ -1,4 +1,3 @@
-streamlit
 numpy
 pandas
 tslearn
@@ -7,3 +6,4 @@ seaborn
 pyyaml
 torch
 statsmodels
+joblib
