@@ -437,14 +437,46 @@ def compute_binned_trend(
 def compute_lowess_bootstrap(
     x: np.ndarray,
     y: np.ndarray,
-    frac: float = 0.1,
+    frac: float = 0.3,
     n_bootstrap_runs: int = 1000,
     sample_frac: float = 1.0,
     n_x_values: int = 1000,
     n_procs: int = -1,
 ):
-    def _sample(x: np.ndarray, y: np.ndarray, x_values: np.ndarray, n_samples: int):
-        samples = np.random.choice(x.size, n_samples, replace=True)
+    """
+    Computes a bootstrap confidence interval for a LOWESS fit.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        The x-coordinates of the data points.
+    y : np.ndarray
+        The y-coordinates of the data points.
+    frac : float, optional
+        The fraction of the data used when estimating each y-value.
+        Default is 0.3.
+    n_bootstrap_runs : int, optional
+        The number of bootstrap instances to run. Default is 1000.
+    sample_frac : float, optional
+        The fraction of the data to sample (with replacement) in each bootstrap run. 
+        Default is 1.0.
+    n_x_values : int, optional
+        The number of x values to evaluate the LOWESS fit on. Default is 1000.
+    n_procs : int, optional
+        The number of processors to use for parallel execution. 
+        Default is -1 (all available processors).
+
+    Returns
+    -------
+    x_values : np.ndarray
+        The x values at which the LOWESS curves were evaluated.
+    y_values : np.ndarray
+        A 2D array of the evaluated LOWESS curves for each bootstrap run, 
+        with shape (n_x_values, n_bootstrap_runs).
+    """
+    def _sample(x: np.ndarray, y: np.ndarray, x_values: np.ndarray, n_samples: int, seed: int):
+        rng = np.random.default_rng(seed)
+        samples = rng.choice(x.shape[0], n_samples, replace=True)
 
         x_sample = x[samples]
         y_sample = y[samples]
@@ -456,11 +488,15 @@ def compute_lowess_bootstrap(
         return y_values
 
     # Run bootstrapping
-    n_samples = int(sample_frac * x.size)
+    n_samples = int(sample_frac * x.shape[0])
     x_values = np.linspace(x.min(), x.max(), n_x_values)
 
+    # Generate distinct seeds for each job
+    rng = np.random.default_rng()
+    seeds = rng.integers(0, np.iinfo(np.int32).max, size=n_bootstrap_runs)
+
     y_values = Parallel(n_jobs=n_procs)(
-        delayed(_sample)(x, y, x_values, n_samples) for _ in range(n_bootstrap_runs)
+        delayed(_sample)(x, y, x_values, n_samples, seed) for seed in seeds
     )
     y_values = np.stack(y_values, axis=1)
 
